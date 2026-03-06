@@ -274,21 +274,19 @@ function isiDropdownProduk() {
 
   bulanFilter = Number(bulanFilter);
 
-  let saldoAwal = 0;
-  let masuk = 0;
-  let keluar = 0;
+  let total = 0;
 
-  // SALDO AWAL MASTER
+  // SALDO AWAL
   masterProduk.forEach(r=>{
     const produk = r[1];
-    const saldo = Number(r[2]) || 0;
+    const saldoAwal = Number(r[2]) || 0;
 
     if(!produkFilter || produk === produkFilter){
-      saldoAwal += saldo;
+      total += saldoAwal;
     }
   });
 
-  // STOK MASUK BULAN TERPILIH
+  // STOK MASUK BULAN TERFILTER
   persediaan.forEach(r=>{
     const produk = r[1];
     const bulanData = new Date(r[0]).getUTCMonth() + 1;
@@ -296,25 +294,12 @@ function isiDropdownProduk() {
 
     if(bulanData === bulanFilter){
       if(!produkFilter || produk === produkFilter){
-        masuk += qty;
+        total += qty;
       }
     }
   });
 
-  // STOK KELUAR BULAN TERPILIH
-  penjualanRaw.forEach(r=>{
-    const produk = r[3];
-    const bulanData = new Date(r[0]).getUTCMonth() + 1;
-    const qty = Number(r[4]) || 0;
-
-    if(bulanData === bulanFilter){
-      if(!produkFilter || produk === produkFilter){
-        keluar += qty;
-      }
-    }
-  });
-
-  return saldoAwal + masuk;
+  return total;
 }
 
 /* =======================
@@ -758,6 +743,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
