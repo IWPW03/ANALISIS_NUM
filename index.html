@@ -78,11 +78,6 @@
 </div>
 
 <div class="card">
-    <h3>Total Stok</h3>
-    <span id="totalStok">0</span>
-</div>
-
-<div class="card">
     <h3>Total Penjualan (Qty)</h3>
     <span id="totalPenjualan">0</span>
 </div>
@@ -416,7 +411,9 @@ persediaan.forEach(r => {
     produkBelumTerjualEl.textContent = 
         semuaProdukSet.size - produkTerjualSet.size;
 
-    totalStokEl.textContent          = totalStok;
+    if (totalStokEl) {
+  totalStokEl.textContent = totalStok;
+}
     totalPenjualanEl.textContent     = totalQty;
     totalPenjualanRpEl.textContent   =
         "Rp " + totalRp.toLocaleString("id-ID");
@@ -768,6 +765,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
