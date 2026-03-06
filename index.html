@@ -270,13 +270,13 @@ function isiDropdownProduk() {
   });
 }
        
-    function hitungStokRolling(bulanFilter, produkFilter){
+  function hitungStokRolling(bulanFilter, produkFilter){
 
   bulanFilter = Number(bulanFilter);
 
   let saldo = 0;
 
-  // saldo awal
+  // SALDO AWAL
   masterProduk.forEach(r=>{
     const produk = r[1];
     const saldoAwal = Number(r[3]) || 0;
@@ -288,7 +288,10 @@ function isiDropdownProduk() {
 
   for(let bulan=1; bulan<=bulanFilter; bulan++){
 
-    // stok masuk
+    let masuk = 0;
+    let keluar = 0;
+
+    // MASUK BULAN INI
     persediaan.forEach(r=>{
       const produk = r[1];
       const bulanData = new Date(r[0]).getUTCMonth()+1;
@@ -296,29 +299,34 @@ function isiDropdownProduk() {
 
       if(bulanData === bulan){
         if(!produkFilter || produk === produkFilter){
-          saldo += qty;
+          masuk += qty;
         }
       }
     });
 
-    // stok keluar
+    // KELUAR BULAN INI
     penjualanRaw.forEach(r=>{
       const produk = r[3];
       const bulanData = new Date(r[0]).getUTCMonth()+1;
       const qty = Number(r[4]) || 0;
 
-      if(bulanData === bulan && bulan < bulanFilter){
+      if(bulanData === bulan){
         if(!produkFilter || produk === produkFilter){
-          saldo -= qty;
+          keluar += qty;
         }
       }
     });
+
+    if(bulan === 1){
+      saldo = saldo + masuk;
+    } else {
+      saldo = (saldo - keluar) + masuk;
+    }
 
   }
 
   return saldo;
 }
-
 /* =======================
    KPI (TERFILTER)
 ======================= */
@@ -760,6 +768,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
