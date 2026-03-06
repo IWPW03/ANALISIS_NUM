@@ -292,7 +292,7 @@ function isiDropdownProduk() {
     // STOK MASUK
     persediaan.forEach(r=>{
       const produk = r[1];
-      const bulanData = Number(r[3]);
+      const bulanData = new Date(r[0]).getUTCMonth() + 1;
       const qty = Number(r[5]) || 0;
 
       if(bulanData === bulan){
@@ -761,6 +761,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
