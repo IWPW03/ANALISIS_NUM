@@ -270,36 +270,53 @@ function isiDropdownProduk() {
   });
 }
        
-     function hitungStokRolling(bulanFilter, produkFilter){
+    function hitungStokRolling(bulanFilter, produkFilter){
 
   bulanFilter = Number(bulanFilter);
 
-  let total = 0;
+  let saldo = 0;
 
-  // SALDO AWAL
+  // saldo awal
   masterProduk.forEach(r=>{
     const produk = r[1];
-    const saldoAwal = Number(r[2]) || 0;
+    const saldoAwal = Number(r[3]) || 0;
 
     if(!produkFilter || produk === produkFilter){
-      total += saldoAwal;
+      saldo += saldoAwal;
     }
   });
 
-  // STOK MASUK BULAN TERFILTER
-  persediaan.forEach(r=>{
-    const produk = r[1];
-    const bulanData = new Date(r[0]).getUTCMonth() + 1;
-    const qty = Number(r[5]) || 0;
+  for(let bulan=1; bulan<=bulanFilter; bulan++){
 
-    if(bulanData === bulanFilter){
-      if(!produkFilter || produk === produkFilter){
-        total += qty;
+    // stok masuk
+    persediaan.forEach(r=>{
+      const produk = r[1];
+      const bulanData = new Date(r[0]).getUTCMonth()+1;
+      const qty = Number(r[5]) || 0;
+
+      if(bulanData === bulan){
+        if(!produkFilter || produk === produkFilter){
+          saldo += qty;
+        }
       }
-    }
-  });
+    });
 
-  return total;
+    // stok keluar
+    penjualanRaw.forEach(r=>{
+      const produk = r[3];
+      const bulanData = new Date(r[0]).getUTCMonth()+1;
+      const qty = Number(r[4]) || 0;
+
+      if(bulanData === bulan && bulan < bulanFilter){
+        if(!produkFilter || produk === produkFilter){
+          saldo -= qty;
+        }
+      }
+    });
+
+  }
+
+  return saldo;
 }
 
 /* =======================
@@ -743,6 +760,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
