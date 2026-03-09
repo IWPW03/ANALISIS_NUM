@@ -241,6 +241,7 @@ let lastProdukBelumTerjual = [];
 let lastOutletStatus = [];
 let stokAwalOutlet = [];
 let penjualanOutlet = [];
+let produkMapNama = {};
 
 /* =======================
    LOADING CONTROL
@@ -275,7 +276,7 @@ fetch(API_URL)
             // =======================
     // MAP SKU → NAMA PRODUK
     // =======================
-    const produkMapNama = {};
+    produkMapNama = {};
     
     masterProduk.forEach(r => {
       const sku = String(r[0]);
@@ -917,6 +918,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
