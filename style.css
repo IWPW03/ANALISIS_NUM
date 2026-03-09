@@ -502,15 +502,25 @@ tbody tr:hover {
     opacity:1;
   }
 }
+
+
 #detailProdukOutlet{
-  margin-top:10px;
+width:100%;
+border-collapse:collapse;
 }
 
-#detailProdukBody{
-  display:block;
-  max-height:250px;
-  overflow-y:auto;
+.modal-content{
+max-height:80vh;
+overflow-y:auto;
 }
+
+#detailProdukOutlet th,
+#detailProdukOutlet td{
+border:1px solid #ddd;
+padding:6px;
+text-align:left;
+}
+
 
 
 
