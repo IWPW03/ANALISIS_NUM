@@ -150,6 +150,30 @@
 </section>
         </main>
     </div>
+      <!-- MODAL DETAIL OUTLET -->
+<div id="outletModal" class="modal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h3 id="modalOutletTitle">Detail Outlet</h3>
+      <span id="closeModal">&times;</span>
+    </div>
+
+    <div class="modal-body">
+      <p><b>Outlet :</b> <span id="modalOutletNama"></span></p>
+      <p><b>Bulan :</b> <span id="modalOutletBulan"></span></p>
+
+      <hr>
+
+      <p>Saldo Awal : <span id="modalSaldoAwal">0</span></p>
+      <p>Masuk      : <span id="modalMasuk">0</span></p>
+      <p>Keluar     : <span id="modalKeluar">0</span></p>
+      <p><b>Sisa Stok :</b> <span id="modalSisa">0</span></p>
+
+    </div>
+
+  </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -783,34 +807,10 @@ exportOutletBtn.addEventListener("click", () => {
 });
 
 </script>
-
-    <!-- MODAL DETAIL OUTLET -->
-<div id="outletModal" class="modal">
-  <div class="modal-content">
-
-    <div class="modal-header">
-      <h3 id="modalOutletTitle">Detail Outlet</h3>
-      <span id="closeModal">&times;</span>
-    </div>
-
-    <div class="modal-body">
-      <p><b>Outlet :</b> <span id="modalOutletNama"></span></p>
-      <p><b>Bulan :</b> <span id="modalOutletBulan"></span></p>
-
-      <hr>
-
-      <p>Saldo Awal : <span id="modalSaldoAwal">0</span></p>
-      <p>Masuk      : <span id="modalMasuk">0</span></p>
-      <p>Keluar     : <span id="modalKeluar">0</span></p>
-      <p><b>Sisa Stok :</b> <span id="modalSisa">0</span></p>
-
-    </div>
-
-  </div>
-</div>
 </body>
 
 </html>
+
 
 
 
