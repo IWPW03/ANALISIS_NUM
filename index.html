@@ -789,17 +789,61 @@ function showOutletDetail(outlet){
 
   const produkMap = {};
 
-  // SALDO AWAL
-  stokAwalOutlet.forEach(r=>{
-    const outletData = r[0];
-    const sku = String(r[1]);
-    const qty = Number(r[2]) || 0;
+ // =======================
+// HITUNG SALDO AWAL ROLLING
+// =======================
 
-    if(outletData === outlet){
-      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
-      produkMap[sku].saldo += qty;
-    }
-  });
+stokAwalOutlet.forEach(r=>{
+
+  const outletData = r[0];
+  const sku = String(r[1]);
+  const qty = Number(r[2]) || 0;
+
+  if(outletData === outlet){
+
+    if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+    produkMap[sku].saldo += qty;
+
+  }
+
+});
+
+// TAMBAHKAN MASUK SEBELUM BULAN TERPILIH
+penjualanRaw.forEach(r=>{
+
+  const outletData = r[2];
+  const sku = String(r[5]);
+  const qty = Number(r[4]) || 0;
+  const bulanData = new Date(r[0]).getUTCMonth()+1;
+
+  if(outletData === outlet && bulanData < bulanDipilih){
+
+    if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+    produkMap[sku].saldo += qty;
+
+  }
+
+});
+
+// KURANGI PENJUALAN SEBELUM BULAN TERPILIH
+penjualanOutlet.forEach(r=>{
+
+  const outletData = r[1];
+  const sku = String(r[2]);
+  const qty = Number(r[3]) || 0;
+  const bulanData = new Date(r[0]).getUTCMonth()+1;
+
+  if(outletData === outlet && bulanData < bulanDipilih){
+
+    if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+
+    produkMap[sku].saldo -= qty;
+
+  }
+
+});
 
   // MASUK (warehouse → outlet)
   penjualanRaw.forEach(r=>{
@@ -929,6 +973,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
