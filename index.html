@@ -703,21 +703,21 @@ div.onclick = () => {
   const produkMap = {};
 
   // SALDO AWAL
-  stokAwalOutlet.forEach(r=>{
+stokAwalOutlet.forEach(r=>{
 
-    const outletData = r[0];
-    const sku = r[1];
-    const qty = Number(r[2]) || 0;
+  const outletData = r[0];
+  const sku = String(r[1]);
+  const qty = Number(r[2]) || 0;
 
-    if(outletData === outlet){
+  if(outletData === outlet){
 
-      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+    if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
 
-      produkMap[sku].saldo += qty;
+    produkMap[sku].saldo += qty;
 
-    }
+  }
 
-  });
+});
 
   // MASUK (dari warehouse / penjualan sheet)
   penjualanRaw.forEach(r=>{
@@ -738,22 +738,22 @@ div.onclick = () => {
   });
 
   // TERJUAL
-  penjualanOutlet.forEach(r=>{
+penjualanOutlet.forEach(r=>{
 
-    const outletData = r[1];
-    const sku = r[2];
-    const qty = Number(r[3]) || 0;
-    const bulanData = new Date(r[0]).getUTCMonth()+1;
+  const outletData = r[1];
+  const sku = String(r[2]);
+  const qty = Number(r[3]) || 0;
+  const bulanData = new Date(r[0]).getUTCMonth()+1;
 
-    if(outletData === outlet && bulanData === bulanDipilih){
+  if(outletData === outlet && bulanData === bulanDipilih){
 
-      if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
+    if(!produkMap[sku]) produkMap[sku] = {saldo:0,masuk:0,keluar:0};
 
-      produkMap[sku].keluar += qty;
+    produkMap[sku].keluar += qty;
 
-    }
+  }
 
-  });
+});
 
   Object.entries(produkMap).forEach(([sku,data])=>{
 
@@ -775,6 +775,9 @@ div.onclick = () => {
 
   modal.style.display = "flex";
 
+}
+      function closeOutletModal(){
+  document.getElementById("outletModal").style.display = "none";
 }
 
     div.innerHTML = `
@@ -908,6 +911,7 @@ exportOutletBtn.addEventListener("click", () => {
 </body>
 
 </html>
+
 
 
 
