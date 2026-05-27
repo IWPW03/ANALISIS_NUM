@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>AI OCR ANALISIS TOGEL 2D & 4D</title>
+<title>AI OCR ANALYZER 2D & 4D</title>
 
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -20,7 +20,7 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:25px;
+    margin-bottom:20px;
 }
 
 .card{
@@ -64,26 +64,26 @@ textarea{
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
     gap:15px;
 }
 
-.result-box{
+.box{
     background:#334155;
     border-radius:12px;
     padding:15px;
 }
 
-.result-title{
+.title{
+    text-align:center;
     font-size:18px;
     font-weight:bold;
-    text-align:center;
     margin-bottom:15px;
 }
 
 .line{
     background:#16a34a;
-    padding:10px;
+    padding:12px;
     border-radius:10px;
     margin-bottom:10px;
     text-align:center;
@@ -97,18 +97,26 @@ textarea{
     margin-top:10px;
 }
 
+.stats{
+    background:#0f172a;
+    padding:10px;
+    border-radius:10px;
+    margin-bottom:10px;
+    font-size:14px;
+}
+
 </style>
 </head>
 <body>
 
-<h1>AI OCR ANALISIS TOGEL 2D & 4D</h1>
+<h1>AI OCR ANALYZER 2D & 4D</h1>
 
 <div class="card">
 
 <input type="file" id="imageInput" accept="image/*">
 
 <button onclick="scanOCR()">
-SCAN OCR
+SCAN OCR HISTORY
 </button>
 
 <div class="loading" id="loading"></div>
@@ -117,40 +125,46 @@ SCAN OCR
 
 </div>
 
+<div class="card">
+
+<div class="stats" id="stats"></div>
+
+</div>
+
 <div class="grid">
 
-<div class="result-box">
-<div class="result-title">TOP 4 FREKUENSI</div>
+<div class="box">
+<div class="title">TOP 4 FREQUENCY</div>
 <div id="frequencyResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 GANJIL GENAP</div>
+<div class="box">
+<div class="title">TOP 4 ODD EVEN</div>
 <div id="oddEvenResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 BESAR KECIL</div>
+<div class="box">
+<div class="title">TOP 4 BIG SMALL</div>
 <div id="bigSmallResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 HOT DIGIT</div>
+<div class="box">
+<div class="title">TOP 4 HOT DIGIT</div>
 <div id="hotDigitResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 TRANSISI</div>
+<div class="box">
+<div class="title">TOP 4 TRANSITION</div>
 <div id="transitionResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 TAMBAH KURANG</div>
+<div class="box">
+<div class="title">TOP 4 PLUS MINUS</div>
 <div id="plusMinusResult"></div>
 </div>
 
-<div class="result-box">
-<div class="result-title">TOP 4 AI FILTER 4D</div>
+<div class="box">
+<div class="title">TOP 20 AI FILTER 4D</div>
 <div id="top4dResult"></div>
 </div>
 
@@ -167,7 +181,7 @@ async function scanOCR(){
         document.getElementById('imageInput').files[0];
 
     if(!file){
-        alert('Pilih gambar dulu');
+        alert('Pilih gambar');
         return;
     }
 
@@ -182,17 +196,18 @@ async function scanOCR(){
         }
     );
 
-    let text = result.data.text;
+    const text = result.data.text;
 
-    document.getElementById('ocrText').value = text;
+    document.getElementById('ocrText').value =
+        text;
 
-    processHistory(text);
+    processOCR(text);
 
     document.getElementById('loading').innerText =
         'OCR selesai';
 }
 
-function processHistory(text){
+function processOCR(text){
 
     text = text
         .replace(/O/g,'0')
@@ -224,7 +239,6 @@ function processHistory(text){
             );
 
         }
-
         else if(num.length >= 2){
 
             history2D.push(
@@ -236,54 +250,63 @@ function processHistory(text){
     });
 
     if(history2D.length === 0){
-        alert('Tidak ada data 2D');
+        alert('Tidak ada data');
         return;
     }
 
-    startAnalysis();
+    showStats();
+
+    runAnalysis();
 }
 
-function startAnalysis(){
+function showStats(){
 
-    generateFrequencyLines();
-
-    generateOddEvenLines();
-
-    generateBigSmallLines();
-
-    generateHotDigitLines();
-
-    generateTransitionLines();
-
-    generatePlusMinusLines();
-
-    generateTop4D();
+    document.getElementById('stats').innerHTML = `
+        Total History 2D : ${history2D.length}<br>
+        Total History 4D : ${history4D.length}<br>
+        Coverage TOP 20 4D : 0.2%<br>
+        Probabilitas 1 Line 4D : 1 / 10000
+    `;
 }
 
-function renderLines(target,lines){
+function runAnalysis(){
+
+    generateFrequency();
+
+    generateOddEven();
+
+    generateBigSmall();
+
+    generateHotDigit();
+
+    generateTransition();
+
+    generatePlusMinus();
+
+    generateAI4D();
+}
+
+function render(target,lines){
 
     let html = '';
 
-    lines.forEach((num,index)=>{
+    let format = lines.join('*');
 
-        html += `
-            <div class="line">
-                LINE ${index+1} : ${num}
-            </div>
-        `;
-
-    });
+    html += `
+        <div class="line">
+            ${format}
+        </div>
+    `;
 
     document.getElementById(target).innerHTML =
         html;
-}
-
-function getDigitFreq(){
+        }
+function digitFreq(){
 
     let freq = {};
 
     for(let i=0;i<=9;i++){
-        freq[i]=0;
+        freq[i] = 0;
     }
 
     history2D.forEach(num=>{
@@ -296,31 +319,31 @@ function getDigitFreq(){
     return freq;
 }
 
-function generateFrequencyLines(){
+function generateFrequency(){
 
-    let freq = getDigitFreq();
+    let freq = digitFreq();
 
     let sorted =
         Object.entries(freq)
         .sort((a,b)=>b[1]-a[1]);
 
     let d =
-        sorted.slice(0,4).map(x=>x[0]);
+        sorted.slice(0,5).map(x=>x[0]);
 
     let lines = [];
 
     lines.push(d[0]+d[1]);
     lines.push(d[1]+d[2]);
     lines.push(d[2]+d[3]);
-    lines.push(d[0]+d[3]);
+    lines.push(d[3]+d[4]);
 
-    renderLines(
+    render(
         'frequencyResult',
         lines
     );
 }
 
-function generateOddEvenLines(){
+function generateOddEven(){
 
     let odd=['1','3','5','7','9'];
     let even=['0','2','4','6','8'];
@@ -346,16 +369,16 @@ function generateOddEvenLines(){
         }
     }
 
-    renderLines(
+    render(
         'oddEvenResult',
         lines
     );
 }
 
-function generateBigSmallLines(){
+function generateBigSmall(){
 
-    let big=['5','6','7','8','9'];
     let small=['0','1','2','3','4'];
+    let big=['5','6','7','8','9'];
 
     let lines=[];
 
@@ -378,15 +401,15 @@ function generateBigSmallLines(){
         }
     }
 
-    renderLines(
+    render(
         'bigSmallResult',
         lines
     );
 }
 
-function generateHotDigitLines(){
+function generateHotDigit(){
 
-    let freq = getDigitFreq();
+    let freq = digitFreq();
 
     let sorted =
         Object.entries(freq)
@@ -402,13 +425,13 @@ function generateHotDigitLines(){
     lines.push(hot[1]+hot[0]);
     lines.push(hot[1]+hot[1]);
 
-    renderLines(
+    render(
         'hotDigitResult',
         lines
     );
 }
 
-function generateTransitionLines(){
+function generateTransition(){
 
     let lines=[];
 
@@ -426,13 +449,13 @@ function generateTransitionLines(){
 
     });
 
-    renderLines(
+    render(
         'transitionResult',
         lines
     );
 }
 
-function generatePlusMinusLines(){
+function generatePlusMinus(){
 
     let lines=[];
 
@@ -456,47 +479,48 @@ function generatePlusMinusLines(){
 
     });
 
-    renderLines(
+    render(
         'plusMinusResult',
-        lines.slice(0,4)
+        lines
     );
 }
 
-function generateTop4D(){
+function generateAI4D(){
 
     if(history4D.length === 0){
 
-        document.getElementById('top4dResult').innerHTML =
+        document.getElementById('top4dResult')
+        .innerHTML =
             '<div class=\"line\">Tidak ada data 4D</div>';
 
         return;
     }
 
-    let digitFreq = {};
+    let freq = {};
 
     for(let i=0;i<=9;i++){
-        digitFreq[i]=0;
+        freq[i]=0;
     }
 
     history4D.forEach(num=>{
 
         num.split('').forEach(d=>{
 
-            digitFreq[d]++;
+            freq[d]++;
 
         });
 
     });
 
     let hotDigits =
-        Object.entries(digitFreq)
+        Object.entries(freq)
         .sort((a,b)=>b[1]-a[1])
         .slice(0,6)
         .map(x=>x[0]);
 
     let candidates=[];
 
-    for(let i=0;i<500;i++){
+    for(let i=0;i<3000;i++){
 
         let num='';
 
@@ -516,13 +540,67 @@ function generateTop4D(){
         let unique =
             new Set(num.split('')).size;
 
-        score += unique * 5;
+        score += unique * 10;
 
         num.split('').forEach(d=>{
 
-            score += digitFreq[d];
+            score += freq[d];
 
         });
+
+        let odd = 0;
+        let even = 0;
+
+        num.split('').forEach(d=>{
+
+            if(parseInt(d)%2===0){
+                even++;
+            }else{
+                odd++;
+            }
+
+        });
+
+        if(odd >= 1 && even >= 1){
+            score += 20;
+        }
+
+        let small = 0;
+        let big = 0;
+
+        num.split('').forEach(d=>{
+
+            if(parseInt(d)<=4){
+                small++;
+            }else{
+                big++;
+            }
+
+        });
+
+        if(small >= 1 && big >= 1){
+            score += 20;
+        }
+
+        let transitionBonus = 0;
+
+        history4D.slice(-10).forEach(old=>{
+
+            let same = 0;
+
+            for(let k=0;k<4;k++){
+
+                if(num[k] === old[k]){
+                    same++;
+                }
+
+            }
+
+            transitionBonus += same * 3;
+
+        });
+
+        score += transitionBonus;
 
         if(
             !history4D.includes(num)
@@ -547,7 +625,7 @@ function generateTop4D(){
 
         if(
             !used.has(c.num) &&
-            final.length < 4
+            final.length < 20
         ){
 
             used.add(c.num);
@@ -558,7 +636,7 @@ function generateTop4D(){
 
     });
 
-    renderLines(
+    render(
         'top4dResult',
         final
     );
