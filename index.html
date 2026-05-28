@@ -619,11 +619,9 @@ function generateFinal4D(){
 
 function render(target,lines){
 
-    let unique =
-        [...new Set(lines)];
+    let unique = [...new Set(lines)];
 
-    let format =
-        unique.join('*');
+    let format = unique.join('*');
 
     let html = `
     
