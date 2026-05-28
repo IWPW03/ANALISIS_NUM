@@ -157,6 +157,536 @@ SCAN OCR HISTORY
 ANALISIS AS KOP KEPALA EKOR
 </div>
 
+<div id="movementStats" class="result">
+-
+
+
+</div>
+
+<button
+class="copyBtn"
+onclick="copyMovement()"
+>
+COPY ANALISIS
+</button>
+
+</div>
+
+<div class="box">
+
+<div class="title">
+PREDIKSI GERAK 4D
+</div>
+
+<div id="movementPrediction"></div>
+
+</div>
+
+<div class="box">
+
+<div class="title">
+FINAL AI FILTER 2D
+</div>
+
+<div id="final2dResult"></div>
+
+</div>
+
+<div class="box">
+
+<div class="title">
+FINAL AI FILTER 4D
+</div>
+
+<div id="final4dResult"></div>
+
+</div>
+
+</div>
+
+<script>
+
+let history2D = [];
+let history4D = [];
+
+let movementText = '';
+
+async function scanOCR(){
+
+    const file =
+        document.getElementById('imageInput').files[0];
+
+    if(!file){
+
+        alert('Pilih gambar dulu');
+
+        return;
+    }
+
+    document.getElementById('loading').innerText =
+        'Scanning OCR...';
+
+    const result = await Tesseract.recognize(
+        file,
+        'eng',
+        {
+            tessedit_char_whitelist:'0123456789'
+        }
+    );
+
+    let text = result.data.text;
+
+    document.getElementById('ocrText').value =
+        text;
+
+    processOCR(text);
+
+    document.getElementById('loading').innerText =
+        'OCR selesai';
+}
+
+function processOCR(text){
+
+    text = text
+        .replace(/O/g,'0')
+        .replace(/I/g,'1')
+        .replace(/Z/g,'2')
+        .replace(/S/g,'5')
+        .replace(/B/g,'8');
+
+    const numbers = text.match(/\d+/g);
+
+    if(!numbers){
+
+        alert('Tidak ada angka');
+
+        return;
+    }
+
+    history2D = [];
+    history4D = [];
+
+    numbers.forEach(num=>{
+
+        if(num.length >= 4){
+
+            history4D.push(
+                num.slice(-4)
+            );
+
+            history2D.push(
+                num.slice(-2)
+            );
+
+        }
+
+        else if(num.length >= 2){
+
+            history2D.push(
+                num.slice(-2)
+            );
+
+        }
+
+    });
+
+    showStats();
+
+    runAnalysis();
+}
+
+function showStats(){
+
+    document.getElementById('stats').innerHTML = `
+    
+    Total History 2D :
+    ${history2D.length}
+    
+    <br><br>
+
+    Total History 4D :
+    ${history4D.length}
+
+    <br><br>
+
+    Sistem :
+    Analisis Kenaikan Penurunan
+
+    <br><br>
+
+    Probabilitas 4D :
+    1 / 10000
+    
+    `;
+}
+
+function runAnalysis(){
+
+    analyzePositionMovement();
+
+    generateFinal2D();
+
+    generateFinal4D();
+}
+
+function normalizeMove(diff,obj){
+
+    if(diff > 5){
+        diff -= 10;
+    }
+
+    if(diff < -5){
+        diff += 10;
+    }
+
+    if(obj[diff] !== undefined){
+
+        obj[diff]++;
+
+    }
+}
+
+function getTopMove(obj){
+
+    return parseInt(
+
+        Object.entries(obj)
+        .sort((a,b)=>b[1]-a[1])[0][0]
+
+    );
+}
+
+function formatMove(num){
+
+    if(num > 0){
+
+        return `+${num}`;
+    }
+
+    return `${num}`;
+}
+
+function analyzePositionMovement(){
+
+    let asMove = {};
+    let kopMove = {};
+    let kepalaMove = {};
+    let ekorMove = {};
+
+    for(let i=-9;i<=9;i++){
+
+        if(i !== 0){
+
+            asMove[i]=0;
+            kopMove[i]=0;
+            kepalaMove[i]=0;
+            ekorMove[i]=0;
+
+        }
+
+    }
+
+    for(let i=1;i<history4D.length;i++){
+
+        let prev = history4D[i-1];
+        let curr = history4D[i];
+
+        let asDiff =
+            parseInt(curr[0]) -
+            parseInt(prev[0]);
+
+        normalizeMove(
+            asDiff,
+            asMove
+        );
+
+        let kopDiff =
+            parseInt(curr[1]) -
+            parseInt(prev[1]);
+
+        normalizeMove(
+            kopDiff,
+            kopMove
+        );
+
+        let kepalaDiff =
+            parseInt(curr[2]) -
+            parseInt(prev[2]);
+
+        normalizeMove(
+            kepalaDiff,
+            kepalaMove
+        );
+
+        let ekorDiff =
+            parseInt(curr[3]) -
+            parseInt(prev[3]);
+
+        normalizeMove(
+            ekorDiff,
+            ekorMove
+        );
+    }
+
+    let asTrend =
+        getTopMove(asMove);
+
+    let kopTrend =
+        getTopMove(kopMove);
+
+    let kepalaTrend =
+        getTopMove(kepalaMove);
+
+    let ekorTrend =
+        getTopMove(ekorMove);
+
+    movementText = `
+AS ${formatMove(asTrend)}
+KOP ${formatMove(kopTrend)}
+KEPALA ${formatMove(kepalaTrend)}
+EKOR ${formatMove(ekorTrend)}
+`;
+
+    document.getElementById(
+        'movementStats'
+    ).innerHTML = `
+    
+    AS :
+    ${formatMove(asTrend)}
+
+    <br><br>
+
+    KOP :
+    ${formatMove(kopTrend)}
+
+    <br><br>
+
+    KEPALA :
+    ${formatMove(kepalaTrend)}
+
+    <br><br>
+
+    EKOR :
+    ${formatMove(ekorTrend)}
+    
+    `;
+
+    generateMovementPrediction(
+        asTrend,
+        kopTrend,
+        kepalaTrend,
+        ekorTrend
+    );
+}
+
+function generateMovementPrediction(
+    asTrend,
+    kopTrend,
+    kepalaTrend,
+    ekorTrend
+){
+
+    let final = [];
+
+    history4D
+        .slice(-20)
+        .forEach(num=>{
+
+        let a =
+            (
+                parseInt(num[0]) +
+                asTrend + 10
+            ) % 10;
+
+        let b =
+            (
+                parseInt(num[1]) +
+                kopTrend + 10
+            ) % 10;
+
+        let c =
+            (
+                parseInt(num[2]) +
+                kepalaTrend + 10
+            ) % 10;
+
+        let d =
+            (
+                parseInt(num[3]) +
+                ekorTrend + 10
+            ) % 10;
+
+        final.push(
+            `${a}${b}${c}${d}`
+        );
+
+    });
+
+    final =
+        [...new Set(final)]
+        .slice(0,20);
+
+    render(
+        'movementPrediction',
+        final
+    );
+}
+
+function generateFinal2D(){
+
+    let lines = [];
+
+    history2D
+        .slice(-20)
+        .forEach(num=>{
+
+        let a = parseInt(num[0]);
+        let b = parseInt(num[1]);
+
+        let up =
+            (
+                (a+1)%10
+            ).toString()
+            +
+            (
+                (b+1)%10
+            ).toString();
+
+        let down =
+            (
+                (a+9)%10
+            ).toString()
+            +
+            (
+                (b+9)%10
+            ).toString();
+
+        lines.push(up);
+        lines.push(down);
+
+    });
+
+    lines =
+        [...new Set(lines)]
+        .slice(0,20);
+
+    render(
+        'final2dResult',
+        lines
+    );
+}
+
+function generateFinal4D(){
+
+    if(history4D.length === 0){
+
+        document.getElementById(
+            'final4dResult'
+        ).innerHTML =
+        `
+        <div class="result">
+            Tidak ada data 4D
+        </div>
+        `;
+
+        return;
+    }
+
+    let lines = [];
+
+    history4D
+        .slice(-20)
+        .forEach(num=>{
+
+        let newNum = '';
+
+        for(let i=0;i<4;i++){
+
+            let d =
+                (
+                    parseInt(num[i])+1
+                ) % 10;
+
+            newNum += d;
+
+        }
+
+        lines.push(newNum);
+
+    });
+
+    lines =
+        [...new Set(lines)]
+        .slice(0,20);
+
+    render(
+        'final4dResult',
+        lines
+    );
+}
+
+function render(target,lines){
+
+    let unique =
+        [...new Set(lines)];
+
+    let format =
+        unique.join('*');
+
+    const html = `
+    
+    <div class="result">
+        ${format}
+    </div>
+
+    <button
+        class="copyBtn"
+        onclick="copyText('${format}')"
+    >
+        COPY
+    </button>
+
+    `;
+
+    document.getElementById(target).innerHTML =
+        html;
+}
+
+function copyText(text){
+
+    navigator.clipboard.writeText(text);
+
+    alert('Berhasil di copy');
+}
+
+function copyMovement(){
+
+    navigator.clipboard.writeText(
+        movementText
+    );
+
+    alert('Analisis berhasil di copy');
+}
+
+</script>
+
+</body>
+</html></div>
+
+<div class="card">
+
+<div class="stats" id="stats"></div>
+
+</div>
+
+<div class="grid">
+
+<div class="box">
+
+<div class="title">
+ANALISIS AS KOP KEPALA EKOR
+</div>
+
 <div
     id="movementStats"
     class="result"
